@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brandon X Ochoa</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030712;
+        }
+        .font-mono-nums {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glass-panel {
+            background: rgba(10, 20, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -webkit-user-drag: none !important;
+        }
+        
+        /* Fix for the text clipping glitch */
+        .note-text {
+            word-spacing: normal;
+            letter-spacing: normal;
+            text-align: left;
+        }
+        
+        .click-hint {
+            opacity: 0.9;
+        }
+
+        /* Animated Background Orbs */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 15s infinite alternate ease-in-out;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col items-center relative overflow-x-hidden p-4 sm:p-6">
+
+    <!-- Animated Background Layer -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div class="w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-blue-700/20 rounded-full blur-[120px] animate-blob"></div>
+        </div>
+        <div class="absolute bottom-10 right-10">
+            <div class="w-[300px] h-[300px] bg-cyan-600/20 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
+        </div>
+        <div class="absolute top-10 left-10">
+            <div class="w-[250px] h-[250px] bg-indigo-800/25 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="splash-screen" class="fixed inset-0 z-50 bg-[#030712]/60 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-opacity duration-700">
+        <p class="text-lg sm:text-2xl text-blue-300 font-semibold tracking-wide hover:text-white transition drop-shadow-md">
+            Click to enter site.
+        </p>
+    </div>
+
+    <button onclick="toggleMute()" class="absolute top-5 right-5 z-40 w-10 h-10 rounded-full bg-slate-900/80 backdrop-blur border border-slate-700 hover:border-blue-500 text-slate-300 hover:text-blue-400 flex items-center justify-center transition shadow-lg">
+        <i id="mute-icon" class="fa-solid fa-volume-high text-sm"></i>
+    </button>
+
+    <main class="w-full max-w-xl mx-auto flex flex-col items-center justify-center z-10 py-6">
+        
+        <div class="w-full text-center mb-8">
+            <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white mb-3">
+                Brandon X Ochoa
+            </h1>
+            
+            <div class="inline-flex items-center justify-center px-4 py-1.5 mb-4 rounded-full bg-slate-900/80 border border-slate-700 text-slate-300">
+                <span class="text-xs sm:text-sm font-bold tracking-wide">Ochoa's Nickname: <span class="text-white">Chihuahua</span></span>
+            </div>
+
+            <p class="text-slate-400 text-xs sm:text-sm font-medium">
+                Known each other since <span class="text-blue-300 font-semibold">5/10/26, 5:14 AM</span>
+            </p>
+        </div>
+
+        <div class="w-full glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl mb-6 relative overflow-hidden">
+            <div class="text-center mb-5">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-blue-400">Time Known</h3>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-4">
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 text-center">
+                    <div id="cnt-months" class="text-2xl sm:text-3xl font-extrabold text-white font-mono-nums">0</div>
+                    <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Months</div>
+                </div>
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 text-center">
+                    <div id="cnt-days" class="text-2xl sm:text-3xl font-extrabold text-white font-mono-nums">0</div>
+                    <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Days</div>
+                </div>
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 text-center">
+                    <div id="cnt-hours" class="text-2xl sm:text-3xl font-extrabold text-white font-mono-nums">0</div>
+                    <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Hours</div>
+                </div>
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 text-center">
+                    <div id="cnt-mins" class="text-2xl sm:text-3xl font-extrabold text-white font-mono-nums">0</div>
+                    <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Minutes</div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-800/50 text-blue-400 flex items-center justify-center text-sm font-bold shadow-inner">
+                    <i class="fa-solid fa-stopwatch"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="text-[11px] text-slate-400 font-medium tracking-wide">Total Seconds</div>
+                    <div id="cnt-seconds-total" class="text-lg sm:text-xl font-bold text-white font-mono-nums mt-0.5">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full flex flex-col sm:flex-row gap-3 mb-6">
+            <a href="https://discord.gg/J8VKCu8Ajj" target="_blank" class="flex-1 glass-panel rounded-xl p-3 flex items-center justify-center gap-2 hover:bg-slate-800/80 transition border border-slate-700/50 text-slate-200">
+                <i class="fa-brands fa-discord text-xl text-[#5865F2]"></i>
+                <span class="font-bold text-sm tracking-wide">Join Discord</span>
+            </a>
+            <a href="https://www.roblox.com/games/86181148483521/cabin" target="_blank" class="flex-1 glass-panel rounded-xl p-3 flex items-center justify-center gap-2 hover:bg-slate-800/80 transition border border-slate-700/50 text-slate-200">
+                <svg class="w-5 h-5 fill-current text-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.164 0L0 18.836 18.836 24 24 5.164 5.164 0zm10.59 14.154l-4.57 1.225-1.225-4.57 4.57-1.225 1.225 4.57z"/>
+                </svg>
+                <span class="font-bold text-sm tracking-wide">First Game: Cabin</span>
+            </a>
+        </div>
+
+        <!-- Person Cards Layout - Changed to flex row and flex-start to prevent pushing -->
+        <div class="w-full flex flex-col sm:flex-row items-start gap-4 mb-6">
+            
+            <!-- Ochoa Card -->
+            <div class="flex-1 w-full glass-panel rounded-2xl p-5 border border-slate-700/50 flex flex-col items-center text-center">
+                <div class="cursor-pointer group relative flex flex-col items-center" onclick="toggleNote('ochoa-note')">
+                    <h3 class="text-lg font-bold text-white mb-1 border-b border-dashed border-slate-500 group-hover:text-pink-400 transition-colors">Ochoa</h3>
+                    <span class="text-[9px] text-pink-400/70 font-semibold tracking-wider uppercase click-hint mt-0.5 mb-2"><i class="fa-solid fa-hand-pointer mr-1"></i>Click Me</span>
+                </div>
+                
+                <a href="https://tiktok.com/@needyou.o" target="_blank" class="text-slate-400 hover:text-pink-400 transition text-sm flex items-center gap-1.5 mb-4">
+                    <i class="fa-brands fa-tiktok"></i> @needyou.o
+                </a>
+
+                <div id="ochoa-note" class="hidden w-full mb-4">
+                    <div class="bg-slate-900 note-text text-slate-300 text-xs p-3.5 rounded-xl border border-blue-500/30 shadow-lg leading-relaxed break-words">
+                        <span class="font-bold text-blue-400">Brandon:</span> Ochoa can sometimes be mean, but at heart, she is a really kind person. Anyone who meets her will see how awesome she really is. She is very talented and very beautiful, even though she doesn't always believe it or believe in herself. That's why I want to be here for her to show her she should always have faith, even when it feels like there is no hope left. I will always be here for her, no matter what. I will continue to support her in all of her dreams, no matter how impossible they may seem. I will always be there, supporting her and having faith in her.
+                    </div>
+                    <div class="mt-2 bg-slate-900/80 text-slate-400 text-[11px] p-3 rounded-lg border border-blue-500/20 shadow-inner italic break-words text-center">
+                        "No matter what, I will love you always." <br><span class="text-blue-400 font-semibold mt-1 block">Itachi</span>
+                    </div>
+                </div>
+
+                <div class="w-full bg-slate-900/80 rounded-xl p-3 border border-slate-800 mt-auto">
+                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Birthday (June 18)</div>
+                    <div id="countdown-ochoa" class="text-pink-300 font-mono-nums font-bold text-sm">--d --h --m --s</div>
+                </div>
+            </div>
+            
+            <!-- Brandon Card -->
+            <div class="flex-1 w-full glass-panel rounded-2xl p-5 border border-slate-700/50 flex flex-col items-center text-center">
+                <div class="cursor-pointer group relative flex flex-col items-center" onclick="toggleNote('brandon-note')">
+                    <h3 class="text-lg font-bold text-white mb-1 border-b border-dashed border-slate-500 group-hover:text-blue-400 transition-colors">Brandon</h3>
+                    <span class="text-[9px] text-blue-400/70 font-semibold tracking-wider uppercase click-hint mt-0.5 mb-2"><i class="fa-solid fa-hand-pointer mr-1"></i>Click Me</span>
+                </div>
+
+                <a href="https://tiktok.com/@slowlyfocused" target="_blank" class="text-slate-400 hover:text-blue-400 transition text-sm flex items-center gap-1.5 mb-4">
+                    <i class="fa-brands fa-tiktok"></i> @slowlyfocused
+                </a>
+                
+                <div id="brandon-note" class="hidden w-full mb-4">
+                    <div class="bg-slate-900 note-text text-slate-300 text-xs p-3.5 rounded-xl border border-pink-500/30 shadow-lg leading-relaxed break-words">
+                        <span class="font-bold text-pink-400">Ochoa:</span> that ur the sweetest guy ik, lit one of my fav ppl in the world, n i’d choose you over a giant Pizookie any day
+                    </div>
+                    <div class="mt-2 bg-slate-900/80 text-slate-400 text-[11px] p-3 rounded-lg border border-blue-500/20 shadow-inner italic break-words text-center">
+                        "Soulmates don't meet by accident. They meet because you both needed each other without knowing it. Because something in both of you was missing that only the other could bring." <br><span class="text-blue-400 font-semibold mt-1 block">- soulxsigh</span>
+                    </div>
+                </div>
+
+                <div class="w-full bg-slate-900/80 rounded-xl p-3 border border-slate-800 mt-auto">
+                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Birthday (April 20)</div>
+                    <div id="countdown-brandon" class="text-blue-300 font-mono-nums font-bold text-sm">--d --h --m --s</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden flex flex-col items-center mb-6">
+             <div class="text-center mb-4 w-full">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-blue-400">Fav Memory</h3>
+            </div>
+            
+            <div class="w-full max-w-sm aspect-[4/3] rounded-2xl overflow-hidden border-2 border-slate-700/50 shadow-inner bg-slate-900 flex items-center justify-center">
+                <img src="memory.jpg" alt="Favorite Memory" draggable="false" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400/0f172a/38bdf8?text=memory.jpg';">
+            </div>
+        </div>
+
+        <div class="w-full glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden flex flex-col items-center mb-10">
+             <div class="text-center mb-6 w-full">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-blue-400">Photo Gallery</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 w-full max-w-3xl mx-auto">
+                <div class="bg-white p-2 pb-6 shadow-xl rounded-sm transform rotate-[-2deg] flex flex-col">
+                    <div class="aspect-square bg-slate-800 rounded-sm overflow-hidden flex items-center justify-center mb-3 border border-slate-200">
+                        <img src="gallery1.jpg" alt="Memory 1" draggable="false" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/1e293b/cbd5e1?text=gallery1.jpg'">
+                    </div>
+                    <p class="text-slate-800 font-bold text-xs sm:text-sm text-center italic mt-auto px-1 leading-snug">
+                        "moments before she screamed"
+                    </p>
+                </div>
+                
+                <div class="bg-white p-2 pb-6 shadow-xl rounded-sm transform rotate-[3deg] translate-y-2 flex flex-col">
+                    <div class="aspect-square bg-slate-800 rounded-sm overflow-hidden flex items-center justify-center mb-3 border border-slate-200">
+                        <img src="gallery2.jpg" alt="Memory 2" draggable="false" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/1e293b/cbd5e1?text=gallery2.jpg'">
+                    </div>
+                    <p class="text-slate-800 font-bold text-[10px] sm:text-xs text-center italic mt-auto px-1 leading-tight">
+                        "In a world full of bad people everyone just needs their Ochoa"
+                    </p>
+                </div>
+
+                <div class="bg-white p-2 pb-6 shadow-xl rounded-sm transform rotate-[-1deg] flex flex-col">
+                    <div class="aspect-square bg-slate-800 rounded-sm overflow-hidden flex items-center justify-center mb-3 border border-slate-200">
+                        <img src="gallery3.jpg" alt="Memory 3" draggable="false" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/1e293b/cbd5e1?text=gallery3.jpg'">
+                    </div>
+                    <p class="text-slate-800 font-bold text-xs sm:text-sm text-center italic mt-auto px-1 leading-snug">
+                        "Exercising demons with ochoa"
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const startDate = new Date(2026, 4, 10, 5, 14, 0);
+        const audio = document.getElementById('bg-music');
+        const splash = document.getElementById('splash-screen');
+        const muteIcon = document.getElementById('mute-icon');
+
+        splash.addEventListener('click', () => {
+            splash.classList.add('opacity-0');
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 700);
+
+            audio.play().catch(err => {
+                console.log(err);
+            });
+        });
+
+        function toggleMute() {
+            audio.muted = !audio.muted;
+            if (audio.muted) {
+                muteIcon.className = 'fa-solid fa-volume-xmark text-sm';
+            } else {
+                muteIcon.className = 'fa-solid fa-volume-high text-sm';
+            }
+        }
+
+        function toggleNote(noteId) {
+            // Get both notes
+            const targetNote = document.getElementById(noteId);
+            const otherNoteId = noteId === 'ochoa-note' ? 'brandon-note' : 'ochoa-note';
+            const otherNote = document.getElementById(otherNoteId);
+
+            // If the note we clicked is hidden, show it and hide the other one
+            if (targetNote.classList.contains('hidden')) {
+                targetNote.classList.remove('hidden');
+                targetNote.classList.add('block');
+                
+                otherNote.classList.add('hidden');
+                otherNote.classList.remove('block');
+            } else {
+                // If the note we clicked is already showing, just hide it
+                targetNote.classList.add('hidden');
+                targetNote.classList.remove('block');
+            }
+        }
+        
+        function updateCounter() {
+            const now = new Date();
+            let diffMs = now - startDate;
+
+            if (diffMs < 0) {
+                diffMs = 0;
+            }
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+
+            let years = now.getFullYear() - startDate.getFullYear();
+            let months = (years * 12) + (now.getMonth() - startDate.getMonth());
+            
+            let tempDate = new Date(startDate);
+            tempDate.setMonth(tempDate.getMonth() + months);
+            if (tempDate > now) {
+                months--;
+                tempDate = new Date(startDate);
+                tempDate.setMonth(tempDate.getMonth() + months);
+            }
+
+            const remainingMsAfterMonths = now - tempDate;
+            const days = Math.floor(remainingMsAfterMonths / (1000 * 60 * 60 * 24));
+            
+            const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+
+            document.getElementById('cnt-months').textContent = months;
+            document.getElementById('cnt-days').textContent = days;
+            document.getElementById('cnt-hours').textContent = hours;
+            document.getElementById('cnt-mins').textContent = minutes;
+            document.getElementById('cnt-seconds-total').textContent = totalSeconds.toLocaleString();
+        }
+
+        function getNextBirthday(month, day) {
+            const now = new Date();
+            let bday = new Date(now.getFullYear(), month - 1, day);
+            
+            if (now > bday) {
+                bday.setFullYear(now.getFullYear() + 1);
+            }
+            return bday;
+        }
+
+        const bdayOchoa = { month: 6, day: 18 };
+        const bdayBrandon = { month: 4, day: 20 };
+
+        function updateBirthdays() {
+            const now = new Date();
+            
+            const nextOchoa = getNextBirthday(bdayOchoa.month, bdayOchoa.day);
+            const nextBrandon = getNextBirthday(bdayBrandon.month, bdayBrandon.day);
+
+            function formatDiff(diffMs) {
+                const d = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diffMs / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                const m = Math.floor((diffMs / (1000 * 60)) % 60).toString().padStart(2, '0');
+                const s = Math.floor((diffMs / 1000) % 60).toString().padStart(2, '0');
+                return `${d}d ${h}h ${m}m ${s}s`;
+            }
+
+            document.getElementById('countdown-ochoa').textContent = formatDiff(nextOchoa - now);
+            document.getElementById('countdown-brandon').textContent = formatDiff(nextBrandon - now);
+        }
+
+        updateCounter();
+        updateBirthdays();
+        
+        setInterval(() => {
+            updateCounter();
+            updateBirthdays();
+        }, 1000);
+    </script>
+</body>
+</html>
